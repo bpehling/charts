@@ -42,13 +42,16 @@ The following table lists the configurable parameters of the cerebro chart and t
 |-------------------------------------|-------------------------------------|-------------------------------------------|
 | `replicaCount`                      | Number of replicas                  | `1`                                       |
 | `image.repository`                  | The image to run                    | `lmenezes/cerebro`                        |
-| `image.tag`                         | The image tag to pull               | `0.8.4`                                   |
+| `image.tag`                         | The image tag to pull               | `0.8.5`                                   |
 | `image.pullPolicy`                  | Image pull policy                   | `IfNotPresent`                            |
 | `image.pullSecrets`                 | Specify image pull secrets          | `nil` (does not add image pull secrets to deployed pods) |
 | `init.image.repository`             | The image to run                    | `docker.io/busybox`                       |
 | `init.image.tag`                    | The image tag to pull               | `musl`                                    |
 | `init.image.pullPolicy`             | Image pull policy                   | `IfNotPresent`                            |
 | `deployment.annotations`            | Annotations for deployment          | `{}`                                      |
+| `deployment.labels`                 | Additional labels for deployment    | `{}`                                      |
+| `deployment.livenessProbe.enabled`  | Enable livenessProbe                | `true`                                    |
+| `deployment.readinessProbe.enabled` | Enable readinessProbe               | `true`                                    |
 | `service.type`                      | Type of Service                     | `ClusterIP`                               |
 | `service.port`                      | Port for kubernetes service         | `80`                                      |
 | `service.annotations`               | Annotations to add to the service   | `{}`                                      |
@@ -68,6 +71,7 @@ The following table lists the configurable parameters of the cerebro chart and t
 | `config.restHistorySize`            | Rest request history size per user  | `50`                                      |
 | `config.hosts`                      | A list of known hosts               | `[]`                                      |
 | `config.secret`                     | Secret used to sign session cookies | `(random alphanumeric 64 length string)`  |
+| `config.tlsVerify`                  | Validate Elasticsearch cert         | `true`                                    |
 | `securityContext`                   | Security context for pod            | `See values.yaml`                         |
 
 
