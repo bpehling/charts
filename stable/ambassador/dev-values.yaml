@@ -1,0 +1,20 @@
+service:
+  annotations:
+    getambassador.io/config: |
+      ---
+      apiVersion: ambassador/v1
+      kind: Module
+      name: tls
+      config:
+        server:
+          enabled: True
+          secret: ambassador-cert
+          redirect_cleartext_from: 8080
+pro:
+  enabled: true
+  image:
+    repository: quay.io/datawire/ambassador_pro
+    tag: amb-sidecar-0.5.0
+    licenseKey:
+      value: changeme
+      secret: true

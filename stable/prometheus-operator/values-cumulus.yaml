@@ -1,0 +1,132 @@
+prometheus:
+  nodeExporter:
+    # already done via prometheus-node-exporter sub-chart
+    enabled: false
+  prometheusSpec:
+    securityContext: {}
+    serviceMonitorSelector:
+      group: monitor
+    serviceMonitorNamespaceSelector:
+      matchNames:
+      - infra
+    retention: 28d
+    additionalScrapeConfigs:
+    - job_name: 'istio-mesh'
+      scrape_interval: 5s
+      kubernetes_sd_configs:
+      - role: endpoints
+        namespaces:
+          names:
+          - istio-system
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+        action: keep
+        regex: istio-telemetry;prometheus
+    - job_name: 'envy'
+      scrape_interval: 5s
+      kubernetes_sd_configs:
+      - role: endpoints
+        namespaces:
+          names:
+          - istio-system
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+        action: keep
+        regex: istio-statsd-prom-bridge;statsd-prom
+    - job_name: 'istio-policy'
+      scrape_interval: 5s
+      kubernetes_sd_configs:
+      - role: endpoints
+        namespaces:
+          names:
+          - istio-system
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+        action: keep
+        regex: istio-policy;http-monitoring
+    - job_name: 'istio-telemetry'
+      scrape_interval: 5s
+      kubernetes_sd_configs:
+      - role: endpoints
+        namespaces:
+          names:
+          - istio-system
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+        action: keep
+        regex: istio-telemetry;http-monitoring
+    - job_name: 'pilot'
+      scrape_interval: 5s
+      kubernetes_sd_configs:
+      - role: endpoints
+        namespaces:
+          names:
+          - istio-system
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+        action: keep
+        regex: istio-pilot;http-monitoring
+    - job_name: 'galley'
+      scrape_interval: 5s
+      kubernetes_sd_configs:
+      - role: endpoints
+        namespaces:
+          names:
+          - istio-system
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+        action: keep
+        regex: istio-galley;http-monitoring
+  additionalServiceMonitors:
+  - name: servicemonitor
+    labels:
+      name: servicemonitor
+      group: monitor
+    selector:
+      matchLabels:
+        group: monitor
+    endpoints:
+    - port: http
+      interval: 30s
+      path: /metrics
+    namespaceSelector:
+      any: true
+alertmanager:
+  enabled: false
+grafana:
+  ingress:
+    enabled: true
+    hosts:
+    - grafana.mitten-bpehling.st-test.vuforia.io
+    #- changeme.domain
+    tls:
+    - hosts:
+      - grafana.mitten-bpehling.st-test.vuforia.io
+      # - changeme.domain
+  persistence:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi
+  grafana.ini:
+    server:
+      root_url: https://grafana.mitten-bpehling.st-test.vuforia.io
+      # root_url: https://changeme.domain
+    auth.anonymous:
+        enabled: false
+    auth.basic:
+        enabled: false
+    auth:
+        disable_login_form: true
+    auth.generic_oauth:
+      name: "Azure AD"
+      enabled: true
+      client_id: 60b11d79-de73-41e8-a33e-3a2c066ceaf9
+      client_secret: pPIyL5DaH6xGhbaDIEu89Lh2Yh+vUrcF09c5mAWRy/0=
+      # client_id: changeme
+      # client_secret: changeme
+      scopes: openid
+      auth_url: https://login.microsoftonline.com/ecca0f64-fdbc-4797-aad9-af9e5777b53e/oauth2/authorize
+      token_url: https://login.microsoftonline.com/ecca0f64-fdbc-4797-aad9-af9e5777b53e/oauth2/token
+      api_url: https://login.microsoftonline.com/ecca0f64-fdbc-4797-aad9-af9e5777b53e/oauth2/userInfo
+      allow_sign_up: true
