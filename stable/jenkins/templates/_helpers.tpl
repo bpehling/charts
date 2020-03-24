@@ -19,7 +19,7 @@ Allow the release namespace to be overridden for multi-namespace deployments in 
 
 {{- define "jenkins.master.slaveKubernetesNamespace" -}}
   {{- if .Values.master.slaveKubernetesNamespace -}}
-    {{- .Values.master.slaveKubernetesNamespace -}}
+    {{- tpl .Values.master.slaveKubernetesNamespace . -}}
   {{- else -}}
     {{- if .Values.namespaceOverride -}}
       {{- .Values.namespaceOverride -}}
@@ -73,6 +73,8 @@ Returns configuration as code default config
 {{- define "jenkins.casc.defaults" -}}
 jenkins:
   disableRememberMe: false
+  remotingSecurity:
+    enabled: true
   mode: NORMAL
   numExecutors: {{ .Values.master.numExecutors }}
   projectNamingStrategy: "standard"
@@ -136,7 +138,7 @@ jenkins:
         podRetention: {{ .Values.agent.podRetention }}
         showRawYaml: true
         serviceAccount: "{{ include "jenkins.serviceAccountAgentName" . }}"
-        slaveConnectTimeoutStr: "100"
+        slaveConnectTimeoutStr: "{{ .Values.agent.slaveConnectTimeout }}"
         yaml: |-
           {{ tpl .Values.agent.yamlTemplate . | nindent 10 | trim }}
         yamlMergeStrategy: "override"
@@ -166,16 +168,6 @@ unclassified:
       {{- end -}}
     {{- end -}}
   {{- end -}}
-{{- end -}}
-
-{{/*
-Generate private key for jenkins CLI
-*/}}
-{{- define "jenkins.gen-key" -}}
-{{- if not .Values.master.adminSshKey -}}
-{{- $key := genPrivateKey "rsa" -}}
-jenkins-admin-private-key: {{ $key | b64enc | quote }}
-{{- end -}}
 {{- end -}}
 
 {{/*
